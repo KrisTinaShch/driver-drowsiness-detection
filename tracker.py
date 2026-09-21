@@ -73,10 +73,3 @@ class ClosureTracker:
         if not self.history:
             return 0.0
         return sum(c for _, c in self.history) / len(self.history)
-
-    def seen(self):
-        """Seconds of observation collected: PERCLOS is unreliable until the
-        window fills up."""
-        if not self.history:
-            return 0.0
-        return self.history[-1][0] - self.history[0][0]

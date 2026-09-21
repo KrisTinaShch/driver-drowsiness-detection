@@ -249,6 +249,7 @@ uvicorn service:app --reload
 | `notebook.ipynb` | data exploration, split construction, training, evaluation |
 | `demo.py` | webcam loop: landmarks, crops, inference, drawing |
 | `tracker.py` | smoothing, closure timer, PERCLOS — no camera, unit-testable |
+| `test_tracker.py` | tests for that logic, driven by a fake clock |
 | `alarm.py` | audible alarm on a persistent output stream |
 | `service.py` | HTTP service around the classifier (FastAPI) |
 | `Dockerfile` | CPU image for that service |
@@ -258,6 +259,18 @@ Run history (`mlflow.db`, `mlruns/`) is local and not committed either.
 
 Weights (`*.pt`), the manifest and the dataset are not committed: all three are
 reproducible from the code.
+
+## Tests
+
+```bash
+pytest -q
+```
+
+`ClosureTracker` takes a timestamp on every call, so the tests drive it with a
+fake clock: no camera, no model, no waiting. That covers the cases that are
+impractical to reproduce in front of a webcam — a blink of exactly 0.15 s, a
+closure of 1.5 s that must stay silent, one of 2.5 s that must not, an
+ambiguous squint, a single noisy frame, and a face disappearing mid-closure.
 
 ## Design notes
 

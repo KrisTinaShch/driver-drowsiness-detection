@@ -34,5 +34,8 @@ sounddevice
 # --- experiment tracking (logs runs into a local SQLite file) ---
 mlflow
 
+# --- tests ---
+pytest
+
 # --- notebook environment ---
 jupyterlab
