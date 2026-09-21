@@ -6,7 +6,7 @@ raises an audible alarm after two seconds.
 
 Trained on the [MRL Eye Dataset](https://www.kaggle.com/datasets/akashshingha850/mrl-eye-dataset)
 (84,898 images, 37 subjects). Evaluated on people the model has never seen:
-**97.7% accuracy, ROC-AUC 0.997**.
+**97.0% accuracy, ROC-AUC 0.995**.
 
 ## How it works
 
@@ -78,7 +78,8 @@ ResNet-18 pretrained on ImageNet, adapted to grayscale by summing the RGB
 weights of the first convolution, single-logit head. Input 64x64, close to the
 dataset's median image size of 87x87. Trained with `BCEWithLogitsLoss`, AdamW at
 `3e-4`, mixed precision, batch 256, 5 epochs — about four minutes on an
-RTX 3070 Ti.
+RTX 3070 Ti. Training-time augmentation: horizontal flip, gamma, brightness and
+contrast jitter, Gaussian noise and light blur (see *Robustness* below).
 
 Label convention: **1 = closed**. The positive class is the event being
 detected, so recall answers the question that matters — what share of real
@@ -90,37 +91,40 @@ closures were caught.
 
 | | precision | recall | f1 | support |
 |---|---|---|---|---|
-| open | 0.9780 | 0.9780 | 0.9780 | 8,581 |
-| closed | 0.9768 | 0.9768 | 0.9768 | 8,153 |
-| **accuracy** | | | **0.9774** | 16,734 |
+| open | 0.9719 | 0.9688 | 0.9704 | 8,581 |
+| closed | 0.9672 | 0.9706 | 0.9689 | 8,153 |
+| **accuracy** | | | **0.9696** | 16,734 |
 
-ROC-AUC 0.997. Confusion matrix `[[8392, 189], [189, 7964]]` — errors are
-symmetric. The majority-class baseline is 0.487.
+ROC-AUC 0.9953. Confusion matrix `[[8313, 268], [240, 7913]]` — errors are
+close to symmetric. The majority-class baseline is 0.487.
 
 ### Where it fails
 
 | condition | accuracy |
 |---|---|
-| no glasses | 0.9822 |
-| glasses | 0.9649 |
-| good lighting | 0.9801 |
-| poor lighting | 0.9759 |
-| no reflections | 0.9817 |
-| weak reflections | 0.9764 |
-| strong reflections | 0.9471 |
+| no glasses | 0.9797 |
+| glasses | 0.9432 |
+| good lighting | 0.9752 |
+| poor lighting | 0.9664 |
+| no reflections | 0.9787 |
+| weak reflections | 0.9690 |
+| strong reflections | 0.9050 |
+| worst individual subject | 0.9393 |
 
 Glasses and specular reflections are the weak spots, which is what you would
-expect: both obscure the eye itself.
+expect: both obscure the eye itself. This is also where the noise augmentation
+described below costs the most — those are exactly the cases decided by fine
+texture, and the augmentation trains the model not to rely on it.
 
 ### The decision threshold barely matters
 
 | threshold | accuracy | recall (closed) | false alarms |
 |---|---|---|---|
-| 0.5 | 0.9774 | 0.9768 | 189 |
-| 0.598 (best F1 on val) | 0.9775 | 0.9749 | 172 |
-| 0.216 (recall 0.99 on val) | 0.9748 | 0.9830 | 282 |
+| 0.5 | 0.9696 | 0.9706 | 268 |
+| 0.477 (best F1 on val) | 0.9696 | 0.9712 | 273 |
+| 0.249 (recall 0.99 on val) | 0.9685 | 0.9774 | 343 |
 
-With ROC-AUC 0.997 the predicted probabilities pile up near 0 and 1, so moving
+With ROC-AUC 0.995 the predicted probabilities pile up near 0 and 1, so moving
 the threshold reshuffles only a few hundred frames out of 16,734. Per-frame
 tuning is not the lever here — the temporal logic is. A blink flips a single
 frame; the alarm needs two seconds of agreement.
@@ -132,9 +136,10 @@ out to be fragile: Gaussian noise of sigma 4 — barely visible — cost 12 poin
 Low light is really a *noise* problem, because a camera raises its gain in the
 dark.
 
-Retraining with gamma (0.5–2.0), wider brightness jitter, Gaussian noise
-(sigma up to 14) and light blur fixes it, at a cost of 0.45 points on clean
-frames. Measured on a 6,000-image sample of the test set:
+Gamma (0.5–2.0), wider brightness jitter, Gaussian noise (sigma up to 14) and
+light blur fix it. This is the configuration the notebook ships, and every
+number above was produced by it. The comparison below trained one model per
+configuration and evaluated both on a 6,000-image sample of the test set:
 
 | condition | brightness/contrast only | full augmentation |
 |---|---|---|
@@ -188,6 +193,14 @@ builds the manifest, trains, and writes `best.pt`.
 By default `kagglehub` caches the dataset in `~/.cache`. To put it elsewhere,
 set `KAGGLEHUB_CACHE` in the first cell — it is about 500 MB.
 
+Every training run is logged to MLflow — parameters, the loss and accuracy
+curves, test metrics, the per-condition breakdown and the weights themselves.
+The log lives in a local SQLite file, so nothing needs to be served:
+
+```bash
+mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+
 **Demo.** With `best.pt` in place:
 
 ```bash
@@ -207,6 +220,8 @@ and PERCLOS over the last minute.
 | `tracker.py` | smoothing, closure timer, PERCLOS — no camera, unit-testable |
 | `alarm.py` | audible alarm on a persistent output stream |
 | `download_model.py` | fetches the MediaPipe model |
+
+Run history (`mlflow.db`, `mlruns/`) is local and not committed either.
 
 Weights (`*.pt`), the manifest and the dataset are not committed: all three are
 reproducible from the code.
