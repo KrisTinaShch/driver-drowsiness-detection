@@ -175,9 +175,9 @@ pip install -r requirements.txt
 python download_model.py        # fetches the MediaPipe face landmark model
 ```
 
-`requirements.txt` is unpinned on purpose: the original pins were chosen for
-macOS on Intel and have no wheels elsewhere. The pinned versions are kept in
-`requirements.txt.orig-pins` for reference.
+`requirements.txt` is unpinned on purpose. The project started on macOS/Intel
+with Python 3.9, and those pins have no prebuilt wheels on other platforms, so
+versions are resolved per machine.
 
 ## Running
 

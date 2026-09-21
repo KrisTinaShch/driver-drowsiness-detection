@@ -1,8 +1,8 @@
 # Dependencies of the driver drowsiness detector.
 #
-# Versions were taken when the project moved to Windows (Python 3.10): the
-# original pins were chosen for macOS on Intel + Python 3.9 and have no
-# prebuilt wheels here. The pinned file is kept as requirements.txt.orig-pins.
+# Deliberately unpinned. The project started on macOS/Intel with Python 3.9;
+# those pins have no prebuilt wheels on Windows with Python 3.10, so versions
+# are resolved per machine instead.
 
 # --- tables and plots ---
 numpy
