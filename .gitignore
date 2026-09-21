@@ -1,0 +1,30 @@
+# What git should NOT track.
+# General rule: anything that can be produced again stays out of history.
+
+# Virtual environment — 3.7 GB, built for this CPU and these paths.
+# It would not work on another machine anyway; recreate from requirements.txt.
+.venv/
+
+# Model weights — 43 MB each, and they change on every training run.
+# Git stores every version in full, so the repo would balloon within a dozen
+# runs. Reproduced by retraining in about four minutes.
+*.pt
+
+# Manifest — 6 MB, rebuilt by the notebook in a minute. The split is defined
+# by the code: the greedy assignment is deterministic, there is no randomness
+# in it, so everyone gets exactly the same people in each subset.
+data/
+
+# MediaPipe model — fetched by download_model.py.
+models/
+
+# PyCharm settings — tied to this machine, they store absolute paths.
+.idea/
+
+# MLflow — run log and local artifacts.
+mlruns/
+
+# Housekeeping
+__pycache__/
+*.pyc
+*.bak*

@@ -1,0 +1,35 @@
+# Dependencies of the driver drowsiness detector.
+#
+# Versions were taken when the project moved to Windows (Python 3.10): the
+# original pins were chosen for macOS on Intel + Python 3.9 and have no
+# prebuilt wheels here. The pinned file is kept as requirements.txt.orig-pins.
+
+# --- tables and plots ---
+numpy
+pandas
+matplotlib
+scikit-learn
+
+# --- training the network ---
+torch
+torchvision
+
+# --- images and webcam video ---
+# install the contrib build only: plain opencv-python ships the very same cv2
+# module and the two conflict
+opencv-contrib-python
+
+# --- locating the face and the eyes in a frame ---
+mediapipe
+
+# --- rendering labels (OpenCV cannot draw Cyrillic) ---
+pillow
+
+# --- fetching the dataset from Kaggle (works without a token) ---
+kagglehub
+
+# --- audible alarm ---
+sounddevice
+
+# --- notebook environment ---
+jupyterlab
