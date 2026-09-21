@@ -23,10 +23,16 @@ RUN pip install --no-cache-dir -r requirements-service.txt
 # --no-cache-dir above: pip would otherwise keep a copy of every downloaded
 # wheel inside the image. Useful on a laptop, pure waste in an image.
 
-COPY service.py best.pt ./
-
 # Do not run as root: a process that only answers HTTP has no need for it.
-RUN useradd --create-home app && chown -R app:app /app
+# The user is created before the files are copied, so that COPY can set the
+# owner directly.
+RUN useradd --create-home app
+
+# --chown instead of a later `chown -R`: layers only ever add, they cannot
+# change a file in place. Rewriting the owner afterwards would store the whole
+# 43 MB of weights a second time.
+COPY --chown=app:app service.py best.pt ./
+
 USER app
 
 EXPOSE 8000
