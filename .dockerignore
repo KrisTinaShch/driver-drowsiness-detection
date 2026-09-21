@@ -1,0 +1,18 @@
+# What is NOT sent to the Docker daemon when building.
+# Without this file the build context would be about 4 GB and the build would
+# crawl: Docker packs the whole folder before the first instruction runs.
+
+.venv/
+.git/
+.idea/
+__pycache__/
+data/
+mlruns/
+mlflow.db
+models/
+notebook.ipynb
+*.bak*
+
+# every set of weights except the one the service loads
+*.pt
+!best.pt

@@ -211,6 +211,37 @@ Press `q` in the video window to quit. On screen: the two eye crops being fed to
 the model, per-eye probabilities, a bar filling toward the two-second threshold,
 and PERCLOS over the last minute.
 
+## Serving the model
+
+The webcam demo stays local, but the classifier itself is packaged as an HTTP
+service: send an eye crop, get the probability that the eye is closed.
+
+```bash
+docker build -t eye-state .          # needs best.pt in the project root
+docker run --rm -p 8000:8000 eye-state
+```
+
+Then `http://localhost:8000/docs` for the interactive documentation, or:
+
+```bash
+curl -F "files=@eye.png" http://localhost:8000/predict
+```
+
+```json
+{"predictions": [{"filename": "eye.png", "closed_probability": 0.9971, "closed": true}],
+ "mean_probability": 0.9971, "closed": true}
+```
+
+Several crops can be sent at once; `mean_probability` is the combined verdict
+for a face, the way the demo averages over both eyes. The image runs on CPU —
+one crop takes a few milliseconds, so a GPU is not needed to serve it.
+
+The service can also be run without Docker:
+
+```bash
+uvicorn service:app --reload
+```
+
 ## What is in the repository
 
 | file | |
@@ -219,6 +250,8 @@ and PERCLOS over the last minute.
 | `demo.py` | webcam loop: landmarks, crops, inference, drawing |
 | `tracker.py` | smoothing, closure timer, PERCLOS — no camera, unit-testable |
 | `alarm.py` | audible alarm on a persistent output stream |
+| `service.py` | HTTP service around the classifier (FastAPI) |
+| `Dockerfile` | CPU image for that service |
 | `download_model.py` | fetches the MediaPipe model |
 
 Run history (`mlflow.db`, `mlruns/`) is local and not committed either.
@@ -250,8 +283,8 @@ swallows the first fraction of a second of a sound started on demand.
 - Squinting and downward gaze sit genuinely between the two classes — the
   dataset has no "half-closed" label. The temporal logic absorbs this, per-frame
   predictions do not.
-- Not containerised: the demo needs a camera and a GPU, neither of which passes
-  cleanly into a container on Windows. In a production setting this would run on
+- The demo itself is not containerised: it needs a camera and a display, and
+  neither passes into a container on Windows. The model is served instead. In a production setting this would run on
   a dedicated in-car unit with its own image, most likely with near-infrared
   illumination so that performance does not depend on the time of day.
 

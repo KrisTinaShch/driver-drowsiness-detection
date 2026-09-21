@@ -1,0 +1,18 @@
+# Dependencies of the HTTP service only — a subset of requirements.txt.
+#
+# Deliberately excluded: mediapipe (no face detection here), matplotlib,
+# jupyterlab, mlflow, kagglehub, pandas, scikit-learn. They belong to training
+# and exploration, and each one would only make the image bigger.
+#
+# torch and torchvision are NOT listed: the Dockerfile installs them from
+# PyTorch's CPU index, because the default wheel carries ~2.5 GB of CUDA
+# libraries that are useless without a GPU in the container.
+
+# headless build: same cv2 module, but without the GUI libraries that a
+# container has nowhere to draw on
+opencv-python-headless
+numpy
+
+fastapi
+uvicorn[standard]
+python-multipart
