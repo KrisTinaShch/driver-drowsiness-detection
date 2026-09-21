@@ -31,5 +31,8 @@ kagglehub
 # --- audible alarm ---
 sounddevice
 
+# --- experiment tracking (logs runs into a local SQLite file) ---
+mlflow
+
 # --- notebook environment ---
 jupyterlab

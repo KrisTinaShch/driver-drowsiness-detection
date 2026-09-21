@@ -21,8 +21,10 @@ models/
 # PyCharm settings — tied to this machine, they store absolute paths.
 .idea/
 
-# MLflow — run log and local artifacts.
+# MLflow — experiment log (SQLite) and saved artifacts.
+mlflow.db
 mlruns/
+mlartifacts/
 
 # Housekeeping
 __pycache__/
