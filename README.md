@@ -49,7 +49,7 @@ identically from the code.
 
 ResNet-18 pretrained on ImageNet, the first convolution summed down to one
 channel, single-logit head. Input 64x64 grayscale. `BCEWithLogitsLoss`, AdamW
-at `3e-4`, batch 256, 5 epochs — about four minutes on an RTX 3070 Ti.
+at `3e-4`, batch 256, 5 epochs — a few minutes on a consumer GPU.
 Augmentation: horizontal flip, gamma, brightness and contrast jitter, Gaussian
 noise, light blur.
 
