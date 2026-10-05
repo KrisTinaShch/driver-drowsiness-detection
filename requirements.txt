@@ -1,0 +1,27 @@
+# --- tables and plots ---
+numpy
+pandas
+matplotlib
+scikit-learn
+
+# --- training the network ---
+torch
+torchvision
+
+# --- images and webcam video ---
+opencv-contrib-python
+
+# --- locating the face and the eyes in a frame ---
+mediapipe
+
+# --- fetching the dataset from Kaggle (works without a token) ---
+kagglehub
+
+# --- audible alarm ---
+sounddevice
+
+# --- tests ---
+pytest
+
+# --- notebook environment ---
+jupyterlab
