@@ -1,0 +1,25 @@
+# Exact versions this project was built and measured with, on Python 3.10.
+# Use this file to reproduce the published numbers:
+#
+#     pip install -r requirements-lock.txt
+#
+# requirements.txt has the same packages without versions, for a fresh install
+# on newer Python. Prefer this file if anything there fails to import.
+
+numpy==2.2.6
+pandas==2.3.3
+matplotlib==3.10.9
+scikit-learn==1.7.2
+
+# CPU build, enough for the demo. For an NVIDIA GPU install torch from the
+# PyTorch index instead: https://pytorch.org/get-started/locally/
+torch==2.14.0
+torchvision==0.29.0
+
+opencv-contrib-python==5.0.0.93
+mediapipe==1.0.1
+kagglehub==1.0.2
+sounddevice==0.5.6
+
+pytest==9.1.1
+jupyterlab==4.6.3

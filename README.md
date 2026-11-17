@@ -8,6 +8,41 @@ Trained on the [MRL Eye Dataset](https://www.kaggle.com/datasets/akashshingha850
 84,898 images of 37 people. Measured on eight people the model never saw:
 **97.5% accuracy**, against a 48.7% majority baseline.
 
+## Quick start
+
+Python 3.10 or 3.11. About five minutes, most of it `pip`.
+
+```bash
+git clone https://github.com/KrisTinaShch/driver-drowsiness-detection.git
+cd driver-drowsiness-detection
+python -m venv .venv
+.venv\Scripts\activate        # Windows;  source .venv/bin/activate on Linux
+pip install -r requirements-lock.txt
+python download_model.py
+```
+
+The tests run immediately — no dataset, no weights, no camera:
+
+```bash
+pytest -q
+```
+
+The demo needs `best.pt`, which is not in the repository: weights are 43 MB and
+change on every training run. Train it once by opening `notebook.ipynb` and
+running every cell — it fetches the dataset itself and writes `best.pt` at the
+end. Then:
+
+```bash
+python demo.py
+```
+
+`demo.py` checks both model files before touching the camera and names whatever
+is missing, so a wrong setup fails with one line instead of a traceback.
+
+**You also need** a webcam and a working audio output. On Linux `sounddevice`
+needs the system package `libportaudio2`, otherwise the alarm stays silent
+while everything else works.
+
 ## How it works
 
 ```
@@ -31,8 +66,13 @@ recording are nearly identical. A model scores high by recognising pictures it
 has already seen.
 
 Splitting by subject alone is not enough either. The share of closed-eye frames
-per person runs from 2% to 100%, so a random shuffle of people left 83% closed
-frames in the test set, where answering "closed" every time would score 83%.
+per person runs from 2% to 100%. Across a thousand random shuffles of people the
+test set lands anywhere between 0.201 and 0.783 closed, and a third of them miss
+half by more than ten points — whatever such a run scores, answering "closed"
+every time scores the same. `StratifiedGroupKFold` does not fix it: over five
+folds the closed share runs from 0.332 to 0.807, and the folds themselves come
+out between 4 and 11 people, 6,253 and 26,372 frames. The notebook measures
+both.
 
 The split used assigns people one at a time, largest first, each to whichever
 subset has the smallest combined penalty for overshooting its quota and for
@@ -90,38 +130,28 @@ resembles — noise fixes noise, gamma and brightness fix darkness.
 **Differences under 0.0075 mean nothing.** That is how far one unchanged model
 moves between epochs, so smaller gaps are not evidence.
 
-## Setup
+## Running in detail
 
-```bash
-python -m venv .venv
-.venv\Scripts\activate          # Windows;  source .venv/bin/activate on Linux
-pip install -r requirements.txt
-python download_model.py        # fetches the MediaPipe face landmark model
-```
+**Train.** `notebook.ipynb` top to bottom: it downloads the dataset through
+`kagglehub` (no Kaggle token needed — the dataset is public), builds the
+manifest, trains for five epochs and writes `best.pt`. A few minutes on a
+consumer GPU, longer on a CPU.
 
-## Running
+**Experiments.** `experiments.ipynb` holds the comparisons behind every choice.
+It reuses `data/manifest.csv` written by the first notebook, so run that one
+first.
 
-**Train.** Open `notebook.ipynb` and run it top to bottom. It downloads the
-dataset through `kagglehub` (no Kaggle token needed — the dataset is public),
-builds the manifest, trains, and writes `best.pt`.
+**Demo.** `python demo.py`. Quit with `q`, `Esc`, or by closing the window.
 
-**Demo.** With `best.pt` in place:
+**Tests.** `pytest -q`. Ten tests drive `ClosureTracker` with a
+fake clock: a blink of 0.15 s, a closure of 1.5 s that must stay silent, one of
+2.5 s that must not, a face disappearing mid-closure. None of that is
+reproducible in front of a camera.
 
-```bash
-python demo.py
-```
-
-Quit with `q`, `Esc`, or by closing the window.
-
-**Tests.**
-
-```bash
-pytest -q
-```
-
-Ten tests drive `ClosureTracker` with a fake clock: a blink of 0.15 s, a
-closure of 1.5 s that must stay silent, one of 2.5 s that must not, a face
-disappearing mid-closure. None of that is reproducible in front of a camera.
+**Two requirement files.** `requirements-lock.txt` pins the exact versions the
+published numbers were measured with — use it if anything fails to import.
+`requirements.txt` lists the same packages without versions, for a fresh
+install on a newer Python.
 
 ## Files
 

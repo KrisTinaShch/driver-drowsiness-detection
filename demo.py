@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import cv2
@@ -100,6 +101,16 @@ def draw_state(frame, state, texts):
 
 
 def main():
+    missing = [(path, hint) for path, hint in (
+        (FACE_MODEL, "run: python download_model.py"),
+        (EYE_MODEL, "train it: open notebook.ipynb and run every cell"),
+    ) if not os.path.exists(path)]
+
+    if missing:
+        for path, hint in missing:
+            print(f"missing {path} -- {hint}", file=sys.stderr)
+        raise SystemExit(1)
+
     options = vision.FaceLandmarkerOptions(
         base_options=BaseOptions(model_asset_path=FACE_MODEL),
         running_mode=vision.RunningMode.VIDEO,
