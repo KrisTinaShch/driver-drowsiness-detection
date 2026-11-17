@@ -1,5 +1,7 @@
 # Driver Drowsiness Detection
 
+<img width="850" height="640" alt="загруженное" src="https://github.com/user-attachments/assets/22b8c96a-1d06-4b40-b0eb-71d9af2ff8a7" />
+
 A webcam watches the driver's eyes. A small neural network decides, frame by
 frame, whether an eye is open or closed; a timer turns that into a decision —
 if the eyes stay shut for two seconds, an alarm sounds.
