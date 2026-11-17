@@ -1,6 +1,6 @@
 # Driver Drowsiness Detection
 
-<img width="850" height="640" alt="загруженное" src="https://github.com/user-attachments/assets/22b8c96a-1d06-4b40-b0eb-71d9af2ff8a7" />
+<img width="850" height="640" alt="The demo running in a car: a green box on each eye with its probability, the two crops the network actually sees, the eyes open label and the two-second bar" src="https://github.com/user-attachments/assets/22b8c96a-1d06-4b40-b0eb-71d9af2ff8a7" />
 
 A webcam watches the driver's eyes. A small neural network decides, frame by
 frame, whether an eye is open or closed; a timer turns that into a decision —
@@ -182,7 +182,9 @@ so the demo can be run without training.
 
 - Eight test subjects show a six-point spread in accuracy and are too few to
   bound it.
-- Darkness was simulated, not filmed. Night and in-car conditions are untested.
+- Darkness was simulated, not filmed, and night is untested. The screenshot
+  above was taken in a car in daylight, but nothing was measured there — every
+  number in this file comes from the dataset.
 - Some of the remaining errors belong to the dataset: among the most confident
   mistakes are runs of consecutive frames labelled "open" on which every model
   trained here answers "closed".
