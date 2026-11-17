@@ -27,10 +27,17 @@ The tests run immediately — no dataset, no weights, no camera:
 pytest -q
 ```
 
-The demo needs `best.pt`, which is not in the repository: weights are 43 MB and
-change on every training run. Train it once by opening `notebook.ipynb` and
-running every cell — it fetches the dataset itself and writes `best.pt` at the
-end. Then:
+The demo also needs the trained weights, which are not in the repository:
+they are 43 MB and change on every training run. They live in the
+[v1.0 release](https://github.com/KrisTinaShch/driver-drowsiness-detection/releases/download/v1.0/best.pt) instead:
+
+```bash
+curl -L -o best.pt https://github.com/KrisTinaShch/driver-drowsiness-detection/releases/download/v1.0/best.pt
+```
+
+On Windows PowerShell write `curl.exe`, not `curl` — the bare name there is an
+alias for something else. Or just download the file in a browser and drop it
+into the project folder. Then:
 
 ```bash
 python demo.py
@@ -165,8 +172,9 @@ install on a newer Python.
 | `alarm.py` | the sound |
 | `download_model.py` | fetches the MediaPipe model |
 
-Weights, the manifest and the dataset are not committed: all three are
-reproducible from the code.
+The dataset, the manifest and the weights are not committed: all three are
+reproducible from the code, and the weights are attached to the v1.0 release
+so the demo can be run without training.
 
 ## Limitations
 

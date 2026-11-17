@@ -103,7 +103,7 @@ def draw_state(frame, state, texts):
 def main():
     missing = [(path, hint) for path, hint in (
         (FACE_MODEL, "run: python download_model.py"),
-        (EYE_MODEL, "train it: open notebook.ipynb and run every cell"),
+        (EYE_MODEL, "download it from the Releases page, or train it with notebook.ipynb"),
     ) if not os.path.exists(path)]
 
     if missing:
